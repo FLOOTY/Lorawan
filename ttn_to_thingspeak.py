@@ -58,10 +58,8 @@ except Exception as e:
 def store_sensor_data(data_to_store):
     """
     Enregistre un document dans la collection MongoDB.
-    Ajoute un timestamp au moment de l'enregistrement.
     """
     try:
-        # Ajout d'un timestamp ISO 8601 pour une meilleure interopérabilité
         data_to_store['timestamp'] = datetime.utcnow().isoformat()
         result = collection.insert_one(data_to_store)
         print(f"Données insérées dans MongoDB avec l'ID : {result.inserted_id}")
@@ -83,11 +81,10 @@ def store_sensor_data_csv(data_to_store):
 
 def send_to_thingspeak(payload):
     """
-    Envoie toutes les données du payload à ThingSpeak (jusqu'à 8 champs).
+    Envoie toutes les données du payload à ThingSpeak 
     """
     try:
         params = {'api_key': THINGSPEAK_API_KEY}
-        # Mapping automatique des 8 premiers champs du payload
         for i, (key, value) in enumerate(payload.items()):
             if i >= 8:
                 break
@@ -96,14 +93,14 @@ def send_to_thingspeak(payload):
         if len(params) > 1:
             print(f"Envoi à ThingSpeak : {params}")
             r = requests.post(THINGSPEAK_URL, params=params)
-            r.raise_for_status() # Lève une exception en cas d'erreur HTTP (4xx ou 5xx)
+            r.raise_for_status() 
             print(f"Réponse de ThingSpeak : {r.status_code} - {r.text}")
         else:
             print("Aucune donnée pertinente à envoyer à ThingSpeak.")
     except requests.exceptions.RequestException as e:
         print(f"Erreur lors de l'envoi à ThingSpeak : {e}")
 
-# --- LOGIQUE MQTT ---
+#  LOGIQUE MQTT 
 
 def on_connect(client, userdata, flags, rc):
     """Callback pour la connexion au broker MQTT."""
@@ -140,7 +137,6 @@ def on_message(client, userdata, msg):
         print(f"Une erreur inattendue est survenue dans on_message : {e}")
 
 
-# --- POINT D'ENTRÉE DU SCRIPT ---
 if __name__ == "__main__":
     client = mqtt.Client()
     client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
@@ -150,7 +146,6 @@ if __name__ == "__main__":
     try:
         print("Connexion au broker MQTT...")
         client.connect(MQTT_BROKER, MQTT_PORT, 60)
-        # loop_forever() est une boucle bloquante qui gère la reconnexion.
         client.loop_forever()
     except KeyboardInterrupt:
         print("\nScript arrêté par l'utilisateur.")
