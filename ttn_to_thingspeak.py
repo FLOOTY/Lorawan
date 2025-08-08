@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Script de pipeline de données IoT :
 - Reçoit les données de capteurs depuis The Things Network (TTN) via MQTT.
